@@ -1,21 +1,32 @@
 import React, { useState } from 'react';
 import icone from "../assets/icone.jpg";
 import { Link } from 'react-router';
+import { useLocation } from 'react-router';
+import { BrowserProvider, ethers } from 'ethers'
 export default function Navbar() {
+    const location = useLocation()
     const [Address, SetAddress] = useState()
-    const {ethereum}=window
+    const [bal, setBal] = useState('')
+    const { ethereum } = window
     const connectmetamaks = async () => {
         if (!window.ethereum) {
             alert("Install MetaMask frist")
             return;
         }
         const account = await ethereum.request({
-            method:'eth_requestAccounts',
+            method: 'eth_requestAccounts',
         })
-        console.log(account[0])
-        const fullAddress= account[0]
-        const newaddress=`${fullAddress.slice(0, 6)}...${fullAddress.slice(-4)}`
 
+        console.log(account[0])
+        const fullAddress = account[0]
+        const balance = await ethereum.request({
+            method: "eth_getBalance",
+            params: [
+                account[0], 'latest'
+            ]
+        })
+        const newaddress = `${fullAddress.slice(0, 6)}...${fullAddress.slice(-4)}`
+        setBal(ethers.formatEther(balance))
         SetAddress(newaddress)
     }
     return (
@@ -68,10 +79,9 @@ export default function Navbar() {
                             fontSize: "16px",
                             fontWeight: "500",
                             transition: "color 0.3s ease",
-                            backgroundColor: "#3498db",
-                            borderRadius: "6px",
                             textDecoration: "none"
                         }}
+                            className={` hoverclass ${location.pathname === "/" ? 'active-page' : ""}`}
                         >
                             Champing
                         </li></Link>
@@ -82,10 +92,10 @@ export default function Navbar() {
                             fontSize: "16px",
                             fontWeight: "500",
                             transition: "color 0.3s ease",
-                            backgroundColor: "#3498db",
-                            borderRadius: "6px",
+
                             textDecoration: "none"
                         }}
+                            className={` hoverclass ${location.pathname === "/createCamping" ? 'active-page' : ""}`}
                         >
                             Create Champing
                         </li></Link>
@@ -96,10 +106,9 @@ export default function Navbar() {
                             fontSize: "16px",
                             fontWeight: "500",
                             transition: "color 0.3s ease",
-                            backgroundColor: "#3498db",
-                            borderRadius: "6px",
 
                         }}
+                            className={` hoverclass ${location.pathname === "/dashbord" ? 'active-page' : ""}`}
                         >
                             Dashbord
                         </li></Link>
@@ -129,7 +138,7 @@ export default function Navbar() {
                         }}
                         onClick={connectmetamaks}
                     >
-                        {Address?Address:'Connect Metamask'}
+                        {Address ? <div>{Address} <br /> {bal}</div> : 'Connect Metamask'}
                     </button>
                 </div>
             </div>

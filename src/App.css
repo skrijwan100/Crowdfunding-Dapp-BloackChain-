@@ -2,3 +2,12 @@
   margin: 0;
   padding: 0;
 }
+.active-page{
+   background-color:#3498db;
+   border-radius: 6px;
+}
+.hoverclass:hover{
+     background-color:#9cd5fa;
+     border-radius: 6px;
+     color: black !important;
+}
