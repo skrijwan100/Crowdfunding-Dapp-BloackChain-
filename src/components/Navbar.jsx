@@ -25,8 +25,10 @@ export default function Navbar() {
                 account[0], 'latest'
             ]
         })
-        const newaddress = `${fullAddress.slice(0, 6)}...${fullAddress.slice(-4)}`
-        setBal(ethers.formatEther(balance))
+        const newaddress = `${fullAddress.slice(0, 4)}...${fullAddress.slice(-4)}`
+        const fullbalance=ethers.formatEther(balance)
+        const bal= fullbalance.slice(0,6)
+        setBal(bal)
         SetAddress(newaddress)
     }
     return (
@@ -138,7 +140,7 @@ export default function Navbar() {
                         }}
                         onClick={connectmetamaks}
                     >
-                        {Address ? <div>{Address} <br /> {bal}</div> : 'Connect Metamask'}
+                        {Address ? <div>{Address} <br /> {bal} SpETH</div> : 'Connect Metamask'}
                     </button>
                 </div>
             </div>
