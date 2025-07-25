@@ -1,33 +1,66 @@
 import React, { useState } from 'react'
 import { data } from 'react-router'
-
+import { create } from 'ipfs-http-client'
 export default function CreateCamping() {
-const [Data,setData]=useState({
-  title:"",
-  story:"", 
-  amonut:""
-})
-const [img,setImg]=useState(false)
-const onchange=(e)=>{
-  setData({...Data,[e.target.name]:e.target.value})
-}
-const onSubmit=(e)=>{
-  e.preventDefault();
-  const formData= new FormData()
-  formData.append("title",Data.title);
-  formData.append("story",Data.story);
-  formData.append("amonut",Data.amonut);
-  formData.append("image",img)
-  for (let pair of formData.entries()) {
-  console.log(`${pair[0]}:`, pair[1]);
-}
+  const [Data, setData] = useState({
+    title: "",
+    story: "",
+    amonut: ""
+  })
+  // const client = create(`https://ipfs.infura.io:5001/api/v0/${import.meta.env.VITE_INFURA_API_KEY}`);
+const projectId = import.meta.env.VITE_INFURA_API_KEY;
+const projectSecret = import.meta.env.VITE_INFURA_API_SEC;
+const auth =
+  "Basic " + btoa(projectId + ":" + projectSecret);
 
-}
+const client = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  headers: {
+    authorization: auth,
+  },
+});
+  const [img, setImg] = useState(false)
+  const [ipfsstory, setipfsstory] = useState();
+  const [ipfsimg, setipfsimg] = useState()
+  const [campaingsubmit, setcampaingsubmit] = useState(false)
+  const onchange = (e) => {
+    setData({ ...Data, [e.target.name]: e.target.value })
+  }
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData()
+    formData.append("title", Data.title);
+    formData.append("story", Data.story);
+    formData.append("amonut", Data.amonut);
+    formData.append("image", img)
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+    
+  }
+  const UploadimgIPFS = async (e) => {
+      e.preventDefault();
+      try {
+        const addstory = await client.add(Data.story)
+        console.log(addstory)
+      } catch (error) {
+        console.log(error)
+      }
+      try {
+        const addstory = await client.add(img)
+        console.log(addstory)
+        setcampaingsubmit(true)
+      } catch (error) {
+        console.log(error)
+      }
+    }
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 pt-24 overflow-hidden' style={{ marginTop: "80px" }}>
       <div style={{ display: "flex", alignItems: "center", flexDirection: "column", width: "100vw" }}>
 
-        <form style={{marginTop:"17px"}} onSubmit={onSubmit}>
+        <form style={{ marginTop: "17px" }} onSubmit={onSubmit}>
           <div className='space-y-8'>
             <div className='form-group' style={{ width: "500px" }}>
               <label className='text-white text-2xl font-semibold mb-2 block'>
@@ -51,7 +84,7 @@ const onSubmit=(e)=>{
                 name='story'
                 required
                 value={Data.story}
-                 onChange={onchange}
+                onChange={onchange}
               />
             </div>
             <div className='form-group' style={{ width: "500px" }}>
@@ -64,7 +97,7 @@ const onSubmit=(e)=>{
                 name='amonut'
                 required
                 value={Data.amonut}
-                 onChange={onchange}
+                onChange={onchange}
               />
             </div>
           </div>
@@ -82,15 +115,16 @@ const onSubmit=(e)=>{
             />
 
           </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}><button style={{marginTop:"16px",padding:"10px"}} className="bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
-            Upload pic into IPFS
-          </button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button onClick={UploadimgIPFS} style={{ marginTop: "16px", padding: "10px" }} className="bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
+              Upload pic into IPFS
+            </button>
           </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center"}}><button type='submit' style={{marginTop:"20px",padding:"10px"}} className="bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
+          {campaingsubmit ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><button type='submit' style={{ marginTop: "20px", padding: "10px" }} className="bg-purple-500  text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
             Start Campaing
           </button>
-          </div>
-          
+          </div> : ""}
+
         </form>
       </div>
     </div >
