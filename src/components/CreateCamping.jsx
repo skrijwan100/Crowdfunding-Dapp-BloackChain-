@@ -1,30 +1,17 @@
 import React, { useState } from 'react'
 import { data } from 'react-router'
-import { create } from 'ipfs-http-client'
 export default function CreateCamping() {
   const [Data, setData] = useState({
     title: "",
     story: "",
     amonut: ""
   })
-  // const client = create(`https://ipfs.infura.io:5001/api/v0/${import.meta.env.VITE_INFURA_API_KEY}`);
-const projectId = import.meta.env.VITE_INFURA_API_KEY;
-const projectSecret = import.meta.env.VITE_INFURA_API_SEC;
-const auth =
-  "Basic " + btoa(projectId + ":" + projectSecret);
-
-const client = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  headers: {
-    authorization: auth,
-  },
-});
   const [img, setImg] = useState(false)
   const [ipfsstory, setipfsstory] = useState();
   const [ipfsimg, setipfsimg] = useState()
   const [campaingsubmit, setcampaingsubmit] = useState(false)
+  const [loder,setLoder]= useState(false)
+
   const onchange = (e) => {
     setData({ ...Data, [e.target.name]: e.target.value })
   }
@@ -38,24 +25,58 @@ const client = create({
     for (let pair of formData.entries()) {
       console.log(`${pair[0]}:`, pair[1]);
     }
-    
+
   }
   const UploadimgIPFS = async (e) => {
-      e.preventDefault();
-      try {
-        const addstory = await client.add(Data.story)
-        console.log(addstory)
-      } catch (error) {
-        console.log(error)
-      }
-      try {
-        const addstory = await client.add(img)
-        console.log(addstory)
-        setcampaingsubmit(true)
-      } catch (error) {
-        console.log(error)
-      }
+
+    e.preventDefault();
+    setLoder(true)
+    const imgdata = new FormData();
+    imgdata.append("file", img)
+    const requesturl = `https://api.pinata.cloud/pinning/pinFileToIPFS`
+    console.log(import.meta.env.VITE_PINATA_JWT)
+    try {
+      
+      
+      const uploadrequest = await fetch(requesturl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+        },
+        body: imgdata
+      })
+      
+      const upload = await uploadrequest.json()
+      console.log(upload)
+      setipfsimg(upload.IpfsHash)
+    } catch (error) {
+      console.log(error)
     }
+    const requesturlJ = `https://api.pinata.cloud/pinning/pinJSONToIPFS`
+    const body = {
+      pinataContent: { story: Data.story }
+    };
+    try {
+      const uploadrequest = await fetch(requesturlJ, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      })
+      
+      const upload = await uploadrequest.json()
+      console.log(upload)
+      setipfsstory(upload.IpfsHash)
+      if(upload){
+        setcampaingsubmit(true)
+        setLoder(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 pt-24 overflow-hidden' style={{ marginTop: "80px" }}>
       <div style={{ display: "flex", alignItems: "center", flexDirection: "column", width: "100vw" }}>
@@ -115,11 +136,11 @@ const client = create({
             />
 
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+         {campaingsubmit?"": <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button onClick={UploadimgIPFS} style={{ marginTop: "16px", padding: "10px" }} className="bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
-              Upload pic into IPFS
+             { loder?<div className='loder'></div>:'Upload pic into IPFS'}
             </button>
-          </div>
+          </div>}
           {campaingsubmit ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><button type='submit' style={{ marginTop: "20px", padding: "10px" }} className="bg-purple-500  text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
             Start Campaing
           </button>
