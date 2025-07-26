@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import { data } from 'react-router'
+import { handleSuccess, handleError } from './Alertmessage'
+import { BrowserProvider, ethers } from 'ethers'
+import campcontract from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json"
+import { Link } from 'react-router'
 export default function CreateCamping() {
+  const { ethereum } = window;
   const [Data, setData] = useState({
     title: "",
     story: "",
@@ -10,21 +15,48 @@ export default function CreateCamping() {
   const [ipfsstory, setipfsstory] = useState();
   const [ipfsimg, setipfsimg] = useState()
   const [campaingsubmit, setcampaingsubmit] = useState(false)
-  const [loder,setLoder]= useState(false)
+  const [loder, setLoder] = useState(false)
+  const [CampingId, setCampingId] = useState()
+  const [CampaignLoder, setCampaignLoder] = useState(false)
+  const [newpageLoad, setnewpageLoad] = useState(false)
+  const [Tnxhash,setTnxhash]= useState()
 
   const onchange = (e) => {
     setData({ ...Data, [e.target.name]: e.target.value })
   }
-  const onSubmit = (e) => {
+  const HnadleSubmitdata = async (e) => {
     e.preventDefault();
-    const formData = new FormData()
-    formData.append("title", Data.title);
-    formData.append("story", Data.story);
-    formData.append("amonut", Data.amonut);
-    formData.append("image", img)
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
+    setCampaignLoder(true)
+    console.log("hii")
+    // const formData = new FormData()
+    // formData.append("title", Data.title);
+    // formData.append("story", Data.story);
+    // formData.append("amonut", Data.amonut);
+    // formData.append("image", img)
+    const Amount = parseInt(Data.amonut);
+    const WalletProvider = new BrowserProvider(ethereum)
+    const signer = await WalletProvider.getSigner();
+    console.log(signer)
+    console.log(import.meta.env.VITE_CONTRACT_DEPOLY_ADDRESS)
+    const CampingFactorytx = new ethers.Contract(
+      import.meta.env.VITE_CONTRACT_DEPOLY_ADDRESS,
+      campcontract.abi,
+      signer
+    )
+
+    const campingdata = await CampingFactorytx.createCampaign(
+      Data.title,
+      Amount,
+      ipfsimg,
+      ipfsstory
+    )
+    await campingdata.wait();
+    setCampingId(campingdata.to)
+    setTnxhash(campingdata.hash)
+    setCampaignLoder(false)
+    console.log(campingdata)
+    setnewpageLoad(true)
+
 
   }
   const UploadimgIPFS = async (e) => {
@@ -34,10 +66,9 @@ export default function CreateCamping() {
     const imgdata = new FormData();
     imgdata.append("file", img)
     const requesturl = `https://api.pinata.cloud/pinning/pinFileToIPFS`
-    console.log(import.meta.env.VITE_PINATA_JWT)
     try {
-      
-      
+
+
       const uploadrequest = await fetch(requesturl, {
         method: "POST",
         headers: {
@@ -45,9 +76,9 @@ export default function CreateCamping() {
         },
         body: imgdata
       })
-      
+
       const upload = await uploadrequest.json()
-      console.log(upload)
+      // console.log(upload)
       setipfsimg(upload.IpfsHash)
     } catch (error) {
       console.log(error)
@@ -65,11 +96,12 @@ export default function CreateCamping() {
         },
         body: JSON.stringify(body)
       })
-      
+
       const upload = await uploadrequest.json()
-      console.log(upload)
+      // console.log(upload)
       setipfsstory(upload.IpfsHash)
-      if(upload){
+      if (upload) {
+        handleSuccess("Upload sucessfully")
         setcampaingsubmit(true)
         setLoder(false)
       }
@@ -81,7 +113,30 @@ export default function CreateCamping() {
     <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 pt-24 overflow-hidden' style={{ marginTop: "80px" }}>
       <div style={{ display: "flex", alignItems: "center", flexDirection: "column", width: "100vw" }}>
 
-        <form style={{ marginTop: "17px" }} onSubmit={onSubmit}>
+        {newpageLoad ? <div className=' flex items-center justify-center h-[90vh] w-[100vw]' >
+          <div className='loderpage '>
+            <div className='w-full h-full flex items-center justify-center flex-col'>
+
+              <p className='text-4xl "text-blue-600 dark:text-sky-400  font-semibold text-center text-wrap' >
+                Campaing create Successfully✅
+              </p>
+              <p className='text-2xl "text-blue-600 dark:text-sky-400  font-semibold text-center text-wrap' >
+                To:{CampingId}
+              </p>
+              <p className='text-xl "text-blue-600 dark:text-sky-400  font-semibold text-center text-wrap' >
+                Transaction Hash: <br />
+                {Tnxhash}
+              </p>
+              <div className='w-full flex items-center justify-center '>
+
+                <Link to="/"><button style={{ marginTop: "16px", padding: "17px" }} className="bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors cursor-pointer">
+                  Go To Home Page
+                </button></Link>
+              </div>
+            </div>
+
+          </div>
+        </div> : <form style={{ marginTop: "17px" }} onSubmit={HnadleSubmitdata}>
           <div className='space-y-8'>
             <div className='form-group' style={{ width: "500px" }}>
               <label className='text-white text-2xl font-semibold mb-2 block'>
@@ -113,7 +168,7 @@ export default function CreateCamping() {
                 Amount you need
               </label>
               <input
-                type="number"
+                type="text"
                 className='w-full h-[50px] px-[10px] py-[10px] bg-transparent border border-white/50 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors'
                 name='amonut'
                 required
@@ -136,17 +191,17 @@ export default function CreateCamping() {
             />
 
           </div>
-         {campaingsubmit?"": <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {campaingsubmit ? "" : <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
             <button onClick={UploadimgIPFS} style={{ marginTop: "16px", padding: "10px" }} className="bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
-             { loder?<div className='loder'></div>:'Upload pic into IPFS'}
+              {loder ? <div className='loder'></div> : 'Upload pic into IPFS'}
             </button>
           </div>}
           {campaingsubmit ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}><button type='submit' style={{ marginTop: "20px", padding: "10px" }} className="bg-purple-500  text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors cursor-pointer">
-            Start Campaing
+            {CampaignLoder ? <div className='loder'></div> : 'Start Campaing'}
           </button>
           </div> : ""}
 
-        </form>
+        </form>}
       </div>
     </div >
   )

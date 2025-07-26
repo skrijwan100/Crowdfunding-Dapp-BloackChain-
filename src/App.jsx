@@ -9,6 +9,7 @@ import Home from './components/Home';
 import Dasbord from './components/Dasbord';
 import CreateCamping from './components/CreateCamping';
 import Navbar from './components/Navbar';
+import { ToastContainer } from 'react-toastify'
 function App() {
 
   return (
@@ -17,6 +18,7 @@ function App() {
      <nav>
             <Navbar/>
       </nav>
+      <ToastContainer />
     <Routes>
      <Route path='/' element={<Home/>}/>
      <Route path='/dashbord' element={<Dasbord/>}/>
