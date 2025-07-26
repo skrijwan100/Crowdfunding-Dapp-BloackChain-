@@ -131,8 +131,8 @@ export default function Navbar() {
                         transition: "all 0.3s ease",
                     }}
                         onMouseOver={(e) => {
-                            e.target.style.backgroundColor = "#2980b9";
-                            e.target.style.transform = "translateY(-2px)";
+                          
+                            e.target.style.transform = "translateY(-4px)";
                         }}
                         onMouseOut={(e) => {
                             e.target.style.backgroundColor = "#3498db";
