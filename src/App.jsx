@@ -10,6 +10,7 @@ import Dasbord from './components/Dasbord';
 import CreateCamping from './components/CreateCamping';
 import Navbar from './components/Navbar';
 import { ToastContainer } from 'react-toastify'
+import Details from './components/Details';
 function App() {
 
   return (
@@ -23,6 +24,7 @@ function App() {
      <Route path='/' element={<Home/>}/>
      <Route path='/dashbord' element={<Dasbord/>}/>
      <Route path='/createCamping' element={<CreateCamping/>}/>
+     <Route path='/detils' element={<Details/>}/>
     </Routes>
     </BrowserRouter>
     
