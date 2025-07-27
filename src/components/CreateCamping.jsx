@@ -33,7 +33,7 @@ export default function CreateCamping() {
     // formData.append("story", Data.story);
     // formData.append("amonut", Data.amonut);
     // formData.append("image", img)
-    const Amount = parseInt(Data.amonut);
+    const weiAmount= ethers.parseEther(Data.amonut)
     const WalletProvider = new BrowserProvider(ethereum)
     const signer = await WalletProvider.getSigner();
     console.log(signer)
@@ -46,7 +46,7 @@ export default function CreateCamping() {
 
     const campingdata = await CampingFactorytx.createCampaign(
       Data.title,
-      Amount,
+      weiAmount,
       ipfsimg,
       ipfsstory
     )

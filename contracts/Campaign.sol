@@ -22,7 +22,8 @@ contract CampaignFactory {
             title,
             requireAmount,
             imgeUrl,
-            story
+            story,
+            msg.sender
         );
         CampaignAddress.push(address(newCampaign));
         emit Campaigncreated(
@@ -53,13 +54,14 @@ contract Campaign {
         string memory _title,
         uint _requireAmount,
         string memory _imgeUrl,
-        string memory _stoty
+        string memory _stoty,
+        address CampaingOwner
     ) {
         title = _title;
         requireAmount = _requireAmount;
         imgeUrl = _imgeUrl;
         story = _stoty;
-        owner = payable(msg.sender);
+        owner = payable(CampaingOwner);
     }
     function donet() public payable {
         require(requireAmount > receiveAmount, "receiveAmount has full filled");
