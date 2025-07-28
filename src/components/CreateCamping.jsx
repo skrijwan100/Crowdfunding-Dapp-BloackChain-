@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { data } from 'react-router'
 import { handleSuccess, handleError } from './Alertmessage'
 import { BrowserProvider, ethers } from 'ethers'
-import campcontract from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json"
+import campcontract from "../contracts/Campaign.sol/CampaignFactory.json"
 import { Link } from 'react-router'
 export default function CreateCamping() {
   const { ethereum } = window;

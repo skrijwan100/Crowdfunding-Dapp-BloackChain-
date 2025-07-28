@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import icone from "../assets/icone.jpg"
 import { useParams } from 'react-router';
-import campcontract from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json"
-import camp from "../../artifacts/contracts/Campaign.sol/Campaign.json"
-import { ethers } from 'ethers'
+import camp from "../contracts/Campaign.sol/Campaign.json"
+import { ethers, BrowserProvider } from 'ethers'
 export default function Details() {
   const { id } = useParams()
   const [title, setTitle] = useState('')
@@ -12,7 +11,34 @@ export default function Details() {
   const [requireAmount, setrequireAmount] = useState('')
   const [receiveAmount, setreceiveAmount] = useState('')
   const [Loder, setLoder] = useState(false)
+  const [dmoney, setdmoney] = useState({ damount: "" })
+  const [changeeffect, setchangeeffect] = useState(false)
+  const [alldonte, setalldonte] = useState([])
+  const [mydonte, setmydonte] = useState([])
+  const [btnloder,setbtnloder]=useState(false)
   useEffect(() => {
+    setchangeeffect(false)
+    const fectmeatamask = async () => {
+      if (!window.ethereum) {
+        alert("Install MetaMask frist")
+        return;
+      }
+      const account = await ethereum.request({
+        method: 'eth_requestAccounts',
+      })
+      const fullAddress = account[0]
+      const WalletProvider = new BrowserProvider(ethereum)
+      const signer = await WalletProvider.getSigner();
+      const donatecontract = new ethers.Contract(
+        id,
+        camp.abi,
+        signer
+      )
+      const mydonate= await donatecontract.filters.doneted(fullAddress)
+      const evnet= await donatecontract.queryFilter(mydonate)
+      console.log(evnet)
+      setmydonte(evnet)
+    }
     const fetchcampdata = async () => {
       setLoder(true)
       const infuraProvider = new ethers.JsonRpcProvider(
@@ -23,6 +49,21 @@ export default function Details() {
         camp.abi,
         infuraProvider
       )
+      const WalletProvider = new BrowserProvider(ethereum)
+      const signer = await WalletProvider.getSigner();
+      const donatecontract = new ethers.Contract(
+        id,
+        camp.abi,
+        signer
+      )
+
+      const alldonar = await donatecontract.filters.doneted()
+      const Event = await donatecontract.queryFilter(alldonar)
+      console.log(Event)
+      setalldonte(Event)
+
+
+
 
       const title = await compaingcontract.title();
       const story = await compaingcontract.story()
@@ -40,17 +81,41 @@ export default function Details() {
       setLoder(false)
       // console.log(campaign)
 
-
     }
     fetchcampdata()
-  }, [])
+    fectmeatamask()
+  }, [changeeffect])
+
+  const onchange = (e) => {
+    setdmoney({ ...dmoney, [e.target.name]: e.target.value })
+  }
+
+  const handledonte = async (e) => {
+    e.preventDefault();
+    setbtnloder(true)
+    const WalletProvider = new BrowserProvider(ethereum)
+    const signer = await WalletProvider.getSigner();
+    const donatecontract = new ethers.Contract(
+      id,
+      camp.abi,
+      signer
+    )
+    // console.log(donatecontract)
+    const donetemoney = dmoney.damount
+    const donatemoneyTnx = await donatecontract.donet({ value: ethers.parseEther(donetemoney) })
+
+    await donatemoneyTnx.wait();
+    setchangeeffect(true)
+    setbtnloder(false)
+    setdmoney("")
+  }
   return (
     <>
       <div className='min-h-[90vh] flex items-center   justify-between bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6' style={{ marginTop: "80px" }}>
 
 
 
-        {Loder?<div className='w-full h-full flex justify-center items-center '><div className='lodermain'></div></div>:<div className="left" style={{ marginLeft: "10px" }}>
+        {Loder ? <div className='w-full h-full flex justify-center items-center '><div className='lodermain'></div></div> : <div className="left" style={{ marginLeft: "10px" }}>
           <div className="image flex justify-center">
             <img src={`https://${import.meta.env.VITE_GATEWAY_URL}/ipfs/${image}`} alt="" style={{ width: "300px", height: "350px", borderRadius: "10px" }} />
           </div>
@@ -58,14 +123,14 @@ export default function Details() {
             {story}
           </div>
         </div>}
-        {Loder?"":<div className="right" style={{ padding: "20px" }}>
+        {Loder ? "" : <div className="right" style={{ padding: "20px" }}>
           <div className="title">
             <p className='text-5xl text-white mb-6 text-center'>{title}</p>
           </div>
           <div className="inputform" style={{ marginTop: "20px" }}>
-            <form action="" className="flex gap-2 items-center justify-center">
-              <input type="text" name="" id="hii" className='bg-[#470879] p-2 rounded outline-none border-2 border-[#c345cb] text-white placeholder:text-white' style={{ height: "55px", width: "300px", padding: "15px" }} placeholder="Enter amount" />
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer " style={{ height: "55px", width: "120px", }}>Donate</button>
+            <form onSubmit={handledonte} className="flex gap-2 items-center justify-center">
+              <input value={dmoney.damount} onChange={onchange} type="text" name="damount" className='bg-[#470879] p-2 rounded outline-none border-2 border-[#c345cb] text-white placeholder:text-white' style={{ height: "55px", width: "300px", padding: "15px" }} placeholder="Enter amount" required />
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer " style={{ height: "55px", width: "120px", }}>{btnloder? <div className='loder'></div>:"Donate"}</button>
             </form>
           </div>
           <div className="moneymange" style={{ display: "flex", gap: "34px", marginTop: "20px", alignItems: "center", justifyContent: "center" }}>
@@ -79,10 +144,35 @@ export default function Details() {
             </div>
           </div>
           <div className='moneyshow' style={{ width: "50vw", height: "300px", border: "1px solid white", borderRadius: "8px", padding: "15px", marginTop: "20px", color: "white" }}>
-            <p className="text-xl text-center bg-[#841ef8]">All country</p>
+            <p className="text-xl text-center bg-[#841ef8]">All Donation</p>
+            <div className="mainbox flex justify-between text-2xl">
+              <div>Adress</div>
+              <div>Amount</div>
+              <div>Date</div>
+            </div>
+
+            {alldonte.map((data, index) => (
+              <div key={index} className='flex justify-between text-xl'>
+                <div>{data.args.doner.slice(0, 6)}...{data.args.doner.slice(-4)}</div>
+                <div style={{ marginLeft: "47px" }}>{ethers.formatEther(data.args.Amount)}ETH</div>
+                <div className='text-[14px]'>{new Date(parseInt(data.args.timeStam)).toLocaleString()}</div>
+              </div>
+            ))}
           </div>
           <div className="mycountry" style={{ marginTop: "20px", color: "white" }}>
-            <p className="text-xl text-center  bg-[#841ef8] ">My country</p>
+            <p className="text-xl text-center  bg-[#841ef8] ">My Donation</p>
+             <div className="mainbox flex justify-between text-2xl">
+              <div>Adress</div>
+              <div>Amount</div>
+              <div>Date</div>
+            </div>
+            {mydonte.map((data, index) => (
+              <div key={index} className='flex justify-between text-xl'>
+                <div>{data.args.doner.slice(0, 6)}...{data.args.doner.slice(-4)}</div>
+                <div style={{ marginLeft: "47px" }}>{ethers.formatEther(data.args.Amount)}ETH</div>
+                <div className='text-[14px]'>{new Date(parseInt(data.args.timeStam)).toLocaleString()}</div>
+              </div>
+            ))}
           </div>
         </div>}
       </div>

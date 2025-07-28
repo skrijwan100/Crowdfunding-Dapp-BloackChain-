@@ -101,7 +101,7 @@ export default function Navbar() {
                         >
                             Create Champing
                         </li></Link>
-                        <Link to="/dashbord" style={{ textDecoration: "none" }}> <li style={{
+                        {/* <Link to="/dashbord" style={{ textDecoration: "none" }}> <li style={{
                             color: "#ecf0f1",
                             cursor: "pointer",
                             padding: "8px 12px",
@@ -113,7 +113,7 @@ export default function Navbar() {
                             className={` hoverclass ${location.pathname === "/dashbord" ? 'active-page' : ""}`}
                         >
                             Dashbord
-                        </li></Link>
+                        </li></Link> */}
 
                     </ul>
                 </div>

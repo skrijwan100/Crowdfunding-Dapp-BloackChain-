@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from './Navbar'
-import pic from "../assets/icone.jpg"
-import campcontract from "../../artifacts/contracts/Campaign.sol/CampaignFactory.json"
+import campcontract from "../contracts/Campaign.sol/CampaignFactory.json"
 import { ethers } from 'ethers'
 import { Link } from 'react-router'
 export default function Home() {
   const [campaing, setCampaing] = useState([])
   const [Loder, setLoder] = useState(false)
-  const [campaddress,setCampaddress]=useState()
   useEffect(() => {
     const fecthdata = async () => {
       setLoder(true)
