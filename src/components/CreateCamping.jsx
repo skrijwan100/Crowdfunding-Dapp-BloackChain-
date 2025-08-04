@@ -18,7 +18,7 @@ export default function CreateCamping() {
   const [loder, setLoder] = useState(false)
   const [CampingId, setCampingId] = useState()
   const [CampaignLoder, setCampaignLoder] = useState(false)
-  const [newpageLoad, setnewpageLoad] = useState(true)
+  const [newpageLoad, setnewpageLoad] = useState(false)
   const [Tnxhash,setTnxhash]= useState()
 
   const onchange = (e) => {
