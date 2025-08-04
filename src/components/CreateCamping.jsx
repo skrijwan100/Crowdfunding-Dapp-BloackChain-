@@ -18,7 +18,7 @@ export default function CreateCamping() {
   const [loder, setLoder] = useState(false)
   const [CampingId, setCampingId] = useState()
   const [CampaignLoder, setCampaignLoder] = useState(false)
-  const [newpageLoad, setnewpageLoad] = useState(false)
+  const [newpageLoad, setnewpageLoad] = useState(true)
   const [Tnxhash,setTnxhash]= useState()
 
   const onchange = (e) => {
@@ -28,11 +28,6 @@ export default function CreateCamping() {
     e.preventDefault();
     setCampaignLoder(true)
     console.log("hii")
-    // const formData = new FormData()
-    // formData.append("title", Data.title);
-    // formData.append("story", Data.story);
-    // formData.append("amonut", Data.amonut);
-    // formData.append("image", img)
     const weiAmount= ethers.parseEther(Data.amonut)
     const WalletProvider = new BrowserProvider(ethereum)
     const signer = await WalletProvider.getSigner();
